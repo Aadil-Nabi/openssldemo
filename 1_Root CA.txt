@@ -1,0 +1,93 @@
+1: Prepare the directory
+##################################################################################
+Choose a directory (/root/ca) to store all keys and certificates.
+# mkdir /root/ca
+ 
+Create the directory structure. The index.txt and serial files act as a flat file database to keep track of signed certificates.
+# cd /root/ca
+# mkdir certs crl newcerts private
+# chmod 700 private
+# touch index.txt
+# echo 1000 > serial
+
+2: Prepare the configuration file
+######################################################################################
+You must create a configuration file for OpenSSL to use. Copy the root CA configuration file from the openssl.cnf to /root/ca/openssl.cnf. 
+Explaination in another File
+
+3: Create the root key
+#######################################################################################
+Create the root key (ca.key.pem) and keep it absolutely secure. Anyone in possession of the root key can issue trusted certificates. Encrypt the root key with AES 256-bit encryption and a strong password.
+Note:
+Use 4096 bits for all root and intermediate certificate authority keys. You’ll still be able to sign server and client certificates of a shorter length.
+
+# cd /root/ca
+# openssl genrsa -aes256 -out private/ca.key.pem 4096
+
+Enter pass phrase for ca.key.pem: secretpassword
+Verifying - Enter pass phrase for ca.key.pem: secretpassword
+
+# chmod 400 private/ca.key.pem
+
+4: Create the root certificate
+##########################################################################################
+Use the root key (ca.key.pem) to create a root certificate (ca.cert.pem). Give the root certificate a long expiry date, such as twenty years. Once the root certificate expires, all certificates signed by the CA become invalid.
+Warning:
+Whenever you use the req tool, you must specify a configuration file to use with the -config option, otherwise OpenSSL will default to /etc/pki/tls/openssl.cnf.
+
+# cd /root/ca
+# openssl req -config openssl.cnf -key private/ca.key.pem -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.cert.pem
+
+Enter pass phrase for ca.key.pem: secretpassword
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+-----
+Country Name (2 letter code) [XX]:GB
+State or Province Name []:England
+Locality Name []:
+Organization Name []:Alice Ltd
+Organizational Unit Name []:Alice Ltd Certificate Authority
+Common Name []:Alice Ltd Root CA
+Email Address []:
+
+# chmod 444 certs/ca.cert.pem
+
+5: Verify the root certificate
+##############################################################################################
+openssl x509 -noout -text -in certs/ca.cert.pem
+
+The output shows:
+
+the Signature Algorithm used
+the dates of certificate Validity
+the Public-Key bit length
+the Issuer, which is the entity that signed the certificate
+the Subject, which refers to the certificate itself
+The Issuer and Subject are identical as the certificate is self-signed. Note that all root certificates are self-signed.
+
+Signature Algorithm: sha256WithRSAEncryption
+    Issuer: C=GB, ST=England,
+            O=Alice Ltd, OU=Alice Ltd Certificate Authority,
+            CN=Alice Ltd Root CA
+    Validity
+        Not Before: Apr 11 12:22:58 2015 GMT
+        Not After : Apr  6 12:22:58 2035 GMT
+    Subject: C=GB, ST=England,
+             O=Alice Ltd, OU=Alice Ltd Certificate Authority,
+             CN=Alice Ltd Root CA
+    Subject Public Key Info:
+        Public Key Algorithm: rsaEncryption
+            Public-Key: (4096 bit)
+			
+The output also shows the X509v3 extensions. We applied the v3_ca extension, so the options from [ v3_ca ] should be reflected in the output.
+
+X509v3 extensions:
+    X509v3 Subject Key Identifier:
+        38:58:29:2F:6B:57:79:4F:39:FD:32:35:60:74:92:60:6E:E8:2A:31
+    X509v3 Authority Key Identifier:
+        keyid:38:58:29:2F:6B:57:79:4F:39:FD:32:35:60:74:92:60:6E:E8:2A:31
+
+    X509v3 Basic Constraints: critical
+        CA:TRUE
+    X509v3 Key Usage: critical
+        Digital Signature, Certificate Sign, CRL Sign
