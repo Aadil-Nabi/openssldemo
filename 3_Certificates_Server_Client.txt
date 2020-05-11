@@ -1,3 +1,7 @@
+######################################################################################################################
+STRICTLY FOR INTERNAL USE ONLY, I have no Copyright of the content from Stackoverflow, WIKI and other opensource blogs
+#######################################################################################################################
+
 We will be signing certificates using our intermediate CA. You can use these signed certificates in a variety of situations, such as to secure connections to a web server or to authenticate clients connecting to a service.
 Note
 The steps below are from your perspective as the certificate authority. A third-party, however, can instead create their own private key and certificate signing request (CSR) without revealing their private key to you. They give you their CSR, and you give back a signed certificate. In that scenario, skip the genrsa and req commands.
@@ -13,24 +17,13 @@ If you’re creating a cryptographic pair for use with a web server (eg, Apache), 
 # openssl genrsa -aes256 -out intermediate/private/www.example.com.key.pem 2048
 # chmod 400 intermediate/private/www.example.com.key.pem
 
-2: Create a certificate
+2: Create a CSR and Sign it by Intermediate CA we created in previous session or step
 #############################################################
 Use the private key to create a certificate signing request (CSR). The CSR details don’t need to match the intermediate CA. For server certificates, the Common Name must be a fully qualified domain name (eg, www.example.com), whereas for client certificates it can be any unique identifier (eg, an e-mail address). Note that the Common Name cannot be the same as either your root or intermediate certificate.
 
 # cd /root/ca
 # openssl req -config intermediate/openssl.cnf -key intermediate/private/www.example.com.key.pem -new -sha256 -out intermediate/csr/www.example.com.csr.pem
 
-Enter pass phrase for www.example.com.key.pem: secretpassword
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
------
-Country Name (2 letter code) [XX]:US
-State or Province Name []:California
-Locality Name []:Mountain View
-Organization Name []:Alice Ltd
-Organizational Unit Name []:Alice Ltd Web Services
-Common Name []:www.example.com
-Email Address []:
 
 To create a certificate, use the intermediate CA to sign the CSR. If the certificate is going to be used on a server, use the server_cert extension. If the certificate is going to be used for user authentication, use the usr_cert extension. Certificates are usually given a validity of one year, though a CA will typically give a few days extra for convenience.
 

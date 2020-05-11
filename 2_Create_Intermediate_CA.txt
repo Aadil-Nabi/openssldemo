@@ -1,20 +1,26 @@
-1: Prepare the directory:
+######################################################################################################################
+STRICTLY FOR INTERNAL USE ONLY, I have no Copyright of the content from Stackoverflow, WIKI and other opensource blogs
+#######################################################################################################################
+
+1: Create a separate directory for Intermediate CA
+And create the same directory structure used for the root CA files. It’s convenient to also create a csr directory to hold certificate signing requests.
 ###############################################################
 The root CA files are kept in /root/ca. Choose a different directory (/root/ca/intermediate) to store the intermediate CA files.
 
 # mkdir /root/ca/intermediate
 
-Create the same directory structure used for the root CA files. It’s convenient to also create a csr directory to hold certificate signing requests.
 # cd /root/ca/intermediate
 # mkdir certs crl csr newcerts private
 # chmod 700 private
 # touch index.txt
 # echo 1000 > serial
 
+Create a Intermediate CA configuration file named as openssl.cnf
+##########################################################################
 Add a crlnumber file to the intermediate CA directory tree. crlnumber is used to keep track of certificate revocation lists.
 # echo 1000 > /root/ca/intermediate/crlnumber
 
-Copy the intermediate CA configuration file from the opensslIntermediate.cnf to /root/ca/intermediate/openssl.cnf. Five options have been changed compared to the root CA configuration file:
+Copy the intermediate CA configuration file from the opensslIntermediate.cnf to /root/ca/intermediate/openssl.cnf. Below options have been modified compared to the root CA configuration file:
 [ CA_default ]
 dir             = /root/ca/intermediate
 private_key     = $dir/private/intermediate.key.pem
@@ -28,12 +34,11 @@ Create the intermediate key (intermediate.key.pem). Encrypt the intermediate key
 # cd /root/ca
 # openssl genrsa -aes256 -out intermediate/private/intermediate.key.pem 4096
 
-Enter pass phrase for intermediate.key.pem: secretpassword
-Verifying - Enter pass phrase for intermediate.key.pem: secretpassword
+You can keep same password as that of Root CA
 
 # chmod 400 intermediate/private/intermediate.key.pem
 
-3: Create the intermediate certificate:
+3: Create the intermediate CSR and Sign it with Root CA:
 ####################################################################
 Use the intermediate key to create a certificate signing request (CSR). The details should generally match the root CA. The Common Name, however, must be different.
 Warning
@@ -55,13 +60,10 @@ Common Name []:Alice Ltd Intermediate CA
 Email Address []:
 
 To create an intermediate certificate, use the root CA with the v3_intermediate_ca extension to sign the intermediate CSR. The intermediate certificate should be valid for a shorter period than the root certificate. Ten years would be reasonable.
-Warning:
+Important:
 This time, specify the root CA configuration file (/root/ca/openssl.cnf).
 # cd /root/ca
 # openssl ca -config openssl.cnf -extensions v3_intermediate_ca -days 3650 -notext -md sha256 -in intermediate/csr/intermediate.csr.pem -out intermediate/certs/intermediate.cert.pem
-
-Enter pass phrase for ca.key.pem: secretpassword
-Sign the certificate? [y/n]: y
 
 # chmod 444 intermediate/certs/intermediate.cert.pem
 

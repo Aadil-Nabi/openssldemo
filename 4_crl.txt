@@ -1,3 +1,7 @@
+######################################################################################################################
+STRICTLY FOR INTERNAL USE ONLY, I have no Copyright of the content from Stackoverflow, WIKI and other opensource blogs
+#######################################################################################################################
+
 1: Prepare the configuration file
 #############################################
 When a certificate authority signs a certificate, it will normally encode the CRL location into the certificate. Add crlDistributionPoints to the appropriate sections. In our case, add it to the [ server_cert ] section.

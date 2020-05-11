@@ -1,60 +1,45 @@
-1: Prepare the directory
+######################################################################################################################
+STRICTLY FOR INTERNAL USE ONLY, I have no Copyright of the content from Stackoverflow, WIKI and other opensource blogs
+#######################################################################################################################
+
+1: Create the directory and directory structure. 
 ##################################################################################
 Choose a directory (/root/ca) to store all keys and certificates.
 # mkdir /root/ca
  
-Create the directory structure. The index.txt and serial files act as a flat file database to keep track of signed certificates.
+The index.txt and serial files act as a flat file database to keep track of signed certificates.
 # cd /root/ca
 # mkdir certs crl newcerts private
 # chmod 700 private
 # touch index.txt
 # echo 1000 > serial
 
-2: Prepare the configuration file
+2: Create a Root CA configuration file named as openssl.cnf
 ######################################################################################
-You must create a configuration file for OpenSSL to use. Copy the root CA configuration file from the openssl.cnf to /root/ca/openssl.cnf. 
+You must create a configuration file for OpenSSL to use. You can Copy the root CA configuration file content from the openssl.cnf to /root/ca/openssl.cnf. 
 Explaination in another File
 
 3: Create the root key
 #######################################################################################
 Create the root key (ca.key.pem) and keep it absolutely secure. Anyone in possession of the root key can issue trusted certificates. Encrypt the root key with AES 256-bit encryption and a strong password.
-Note:
 Use 4096 bits for all root and intermediate certificate authority keys. You’ll still be able to sign server and client certificates of a shorter length.
 
 # cd /root/ca
 # openssl genrsa -aes256 -out private/ca.key.pem 4096
-
-Enter pass phrase for ca.key.pem: secretpassword
-Verifying - Enter pass phrase for ca.key.pem: secretpassword
-
 # chmod 400 private/ca.key.pem
 
-4: Create the root certificate
+4: Create the selfsigned root certificate
 ##########################################################################################
 Use the root key (ca.key.pem) to create a root certificate (ca.cert.pem). Give the root certificate a long expiry date, such as twenty years. Once the root certificate expires, all certificates signed by the CA become invalid.
-Warning:
 Whenever you use the req tool, you must specify a configuration file to use with the -config option, otherwise OpenSSL will default to /etc/pki/tls/openssl.cnf.
 
 # cd /root/ca
 # openssl req -config openssl.cnf -key private/ca.key.pem -new -x509 -days 7300 -sha256 -extensions v3_ca -out certs/ca.cert.pem
-
-Enter pass phrase for ca.key.pem: secretpassword
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
------
-Country Name (2 letter code) [XX]:GB
-State or Province Name []:England
-Locality Name []:
-Organization Name []:Alice Ltd
-Organizational Unit Name []:Alice Ltd Certificate Authority
-Common Name []:Alice Ltd Root CA
-Email Address []:
-
 # chmod 444 certs/ca.cert.pem
 
 5: Verify the root certificate
 ##############################################################################################
-openssl x509 -noout -text -in certs/ca.cert.pem
+# openssl x509 -noout -text -in certs/ca.cert.pem
 
 The output shows:
 

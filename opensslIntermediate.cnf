@@ -1,3 +1,7 @@
+######################################################################################################################
+STRICTLY FOR INTERNAL USE ONLY, I have no Copyright of the content from Stackoverflow, WIKI and other opensource blogs
+#######################################################################################################################
+
 # OpenSSL intermediate CA configuration file.
 # Copy to `/root/ca/intermediate/openssl.cnf`.
 

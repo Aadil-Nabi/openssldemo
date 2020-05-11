@@ -1,3 +1,7 @@
+######################################################################################################################
+STRICTLY FOR INTERNAL USE ONLY, I have no Copyright of the content from Stackoverflow, WIKI and other opensource blogs
+#######################################################################################################################
+
 The [ ca ] section is mandatory. Here we tell OpenSSL to use the options from the [ CA_default ] section.
 [ ca ]
 # `man ca`
